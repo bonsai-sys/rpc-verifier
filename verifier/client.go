@@ -10,9 +10,7 @@ import (
 	"github.com/smallnest/rpcx/client"
 )
 
-var AuthClient client.XClient = New()
-
-func New() client.XClient {
+func New() *client.XClient {
 	disc, err := client.NewPeer2PeerDiscovery("tcp@"+env.String("BONSAI_VERIFY_ADDR", "localhost:8972"), "")
 	if err != nil {
 		log.Fatal("Unable to reach verify server")
@@ -37,10 +35,10 @@ func New() client.XClient {
 		disc,
 		options,
 	)
-	return xClient
+	return &xClient
 }
 
-func Verify(token, scopes string) (bool, error) {
+func (r *RPC_Handler) get_authorization(token, scopes string) (int8, error) {
 	reply := new(Reply)
 	args := Args{
 		Token: token,
@@ -50,13 +48,9 @@ func Verify(token, scopes string) (bool, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*250)
 	defer cancel()
 
-	err := AuthClient.Call(ctx, "Verify", args, &reply)
+	err := (*r.con).Call(ctx, "Verify", args, &reply)
 	if err != nil {
-		return false, CommunicationError()
+		return -1, CommunicationError()
 	}
-
-	if !reply.Valid {
-		return false, nil
-	}
-	return true, nil
+	return reply.Code, nil
 }

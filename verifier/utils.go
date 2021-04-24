@@ -27,6 +27,20 @@ func AbortBadRequest(c *gin.Context) {
 	})
 }
 
+func AbortInsufficentPermissions(c *gin.Context) {
+	c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+		"code":  http.StatusUnauthorized,
+		"error": "insufficent permissions",
+	})
+}
+
+func AbortTokenExpired(c *gin.Context) {
+	c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+		"code":  http.StatusUnauthorized,
+		"error": "token expired",
+	})
+}
+
 func ExtractToken(c *gin.Context) string {
 	t := c.Request.Header.Get("Authorization")
 	if len(t) < 128 {

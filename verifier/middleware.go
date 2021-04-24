@@ -8,6 +8,9 @@ import (
 // 	admin; moderator; user
 
 func Middleware(scopes string) gin.HandlerFunc {
+	client := new(RPC_Handler)
+	client.con = New()
+
 	return func(c *gin.Context) {
 		token := ExtractToken(c)
 		if token == "" {
@@ -15,13 +18,25 @@ func Middleware(scopes string) gin.HandlerFunc {
 			return
 		}
 
-		authorized, err := Verify(token, scopes)
+		authorization, err := client.get_authorization(token, scopes)
 		if err != nil {
 			AbortServerError(c)
 			return
 		}
-		if !authorized {
+		switch authorization {
+		case 0:
+			c.Next()
+		case 1:
 			AbortUnauthorized(c)
+			return
+		case 2:
+			AbortTokenExpired(c)
+			return
+		case 3:
+			AbortInsufficentPermissions(c)
+			return
+		default:
+			AbortServerError(c)
 			return
 		}
 		c.Next()
