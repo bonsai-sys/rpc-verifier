@@ -23,3 +23,13 @@ r.Use(verifier.Middleware("scope; anotherscope; sscope"))
 |	400			| Invalid token length or not passed as authorization header, will try stripping Bearer. 	|
 |	401			| User is not authorized with this token or /w scope. 										|
 |	500			| Error encoutered while trying to authorize user. 											|
+
+
+
+| Authorization  	|	Code	   			|
+|:-----------------:|:---------------------:|
+|	0				| Authorized		 	|
+|	1				| Unauthorized		 	|
+|	2				| Token expired			|
+|	3				| Insufficent Scope		|
+|	Any	(-1)		| Server Error			|

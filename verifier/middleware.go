@@ -6,6 +6,7 @@ import (
 
 // Pass scope like
 // 	admin; moderator; user
+//	*
 
 func Middleware(scopes string) gin.HandlerFunc {
 	client := new(RPC_Handler)
