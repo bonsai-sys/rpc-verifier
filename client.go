@@ -17,7 +17,7 @@ func SetIssuer(iss string) {
 }
 
 func New() *client.XClient {
-	disc, err := client.NewPeer2PeerDiscovery("tcp@"+env.String("BONSAI_VERIFY_ADDR", "verify.bonsai-sys.io"), "")
+	disc, err := client.NewPeer2PeerDiscovery("tcp@"+env.String("BONSAI_VERIFY_ADDR", "verify.bonsai-sys.io:8792"), "")
 	if err != nil {
 		log.Fatal("Unable to reach verify server")
 	}
