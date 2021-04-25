@@ -7,10 +7,12 @@ type RPC_Handler struct {
 }
 
 type Args struct {
-	Token string
-	Scope string
+	Token  string
+	Scope  string
+	Issuer string
 }
 
 type Reply struct {
 	Code int8
+	UUID string
 }

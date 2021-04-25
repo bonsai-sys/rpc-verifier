@@ -41,6 +41,13 @@ func AbortTokenExpired(c *gin.Context) {
 	})
 }
 
+func AbortWrongIssuer(c *gin.Context) {
+	c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+		"code":  http.StatusUnauthorized,
+		"error": "issuer is different",
+	})
+}
+
 func ExtractToken(c *gin.Context) string {
 	t := c.Request.Header.Get("Authorization")
 	if len(t) < 128 {

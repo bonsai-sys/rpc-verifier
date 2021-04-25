@@ -10,6 +10,12 @@ import (
 	"github.com/smallnest/rpcx/client"
 )
 
+var Issuer string
+
+func SetIssuer(iss string) {
+	Issuer = iss
+}
+
 func New() *client.XClient {
 	disc, err := client.NewPeer2PeerDiscovery("tcp@"+env.String("BONSAI_VERIFY_ADDR", "localhost:8972"), "")
 	if err != nil {
@@ -38,11 +44,12 @@ func New() *client.XClient {
 	return &xClient
 }
 
-func (r *RPC_Handler) get_authorization(token, scopes string) (int8, error) {
+func (r *RPC_Handler) get_authorization(token, scopes string) (*Reply, error) {
 	reply := new(Reply)
 	args := Args{
-		Token: token,
-		Scope: scopes,
+		Token:  token,
+		Scope:  scopes,
+		Issuer: Issuer,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*250)
@@ -50,7 +57,7 @@ func (r *RPC_Handler) get_authorization(token, scopes string) (int8, error) {
 
 	err := (*r.con).Call(ctx, "Verify", args, &reply)
 	if err != nil {
-		return -1, CommunicationError()
+		return nil, CommunicationError()
 	}
-	return reply.Code, nil
+	return reply, nil
 }

@@ -1,6 +1,8 @@
 package verifier
 
 import (
+	"log"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -9,6 +11,9 @@ import (
 //	*
 
 func Middleware(scopes string) gin.HandlerFunc {
+	if Issuer == "" {
+		log.Fatal("Issuer not set. (Usage verifier.SetIssuer())")
+	}
 	client := new(RPC_Handler)
 	client.con = New()
 
@@ -19,13 +24,15 @@ func Middleware(scopes string) gin.HandlerFunc {
 			return
 		}
 
-		authorization, err := client.get_authorization(token, scopes)
+		reply, err := client.get_authorization(token, scopes)
 		if err != nil {
 			AbortServerError(c)
 			return
 		}
-		switch authorization {
+
+		switch reply.Code {
 		case 0:
+			c.Set("UUID", reply.UUID)
 			c.Next()
 		case 1:
 			AbortUnauthorized(c)
@@ -36,10 +43,12 @@ func Middleware(scopes string) gin.HandlerFunc {
 		case 3:
 			AbortInsufficentPermissions(c)
 			return
+		case 4:
+			AbortWrongIssuer(c)
+			return
 		default:
 			AbortServerError(c)
 			return
 		}
-		c.Next()
 	}
 }
