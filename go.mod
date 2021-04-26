@@ -1,4 +1,4 @@
-module github.com/bonsai-sys/verifier
+module github.com/bonsai-sys/rpc-verifier
 
 go 1.16
 
