@@ -17,7 +17,7 @@ func SetIssuer(iss string) {
 }
 
 func New() *client.XClient {
-	disc, err := client.NewPeer2PeerDiscovery("tcp@"+env.String("BONSAI_VERIFY_ADDR", "verify.bonsai-sys.io:8792"), "")
+	disc, err := client.NewPeer2PeerDiscovery("tcp@"+env.GString("BONSAI_VERIFY_ADDR", "verify.bonsai-sys.io:8792"), "")
 	if err != nil {
 		log.Fatal("Unable to reach verify server")
 	}
@@ -27,7 +27,7 @@ func New() *client.XClient {
 	options.HeartbeatInterval = 3 * time.Second
 	options.MaxWaitForHeartbeat = 5 * time.Second
 	options.IdleTimeout = 15 * time.Second
-	if env.Bool("BONSAI_VERIFIER_SSL", false) {
+	if env.GBool("BONSAI_VERIFIER_SSL", false) {
 		conf := &tls.Config{
 			InsecureSkipVerify: true,
 		}
