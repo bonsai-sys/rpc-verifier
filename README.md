@@ -26,6 +26,8 @@ r.Use(verifier.Middleware("scope; anotherscope; sscope"))
 ```Go
 var Client = new(verifier.Handler)
 
+// verifier.SetIssuer(host string)
+
 func Auth(token Token) error {
 	if token.IsBearer {
 		token.StripBearer()
