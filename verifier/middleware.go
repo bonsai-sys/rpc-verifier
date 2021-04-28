@@ -3,52 +3,35 @@ package verifier
 import (
 	"log"
 
+	"github.com/bonsai-sys/rpc-verifier/errors"
 	"github.com/gin-gonic/gin"
 )
 
-// Pass scope like
-// 	admin; moderator; user
-//	*
+// Gin-gonic related
+// 		Workflow:
+//			Create Client
+//			use client.get_authorization(token, scopes)
+//				- remove bearer from token !
+//				- scopes format "scope; scope; scope" || "*" || "scope"
+//			parse reply
 
 func Middleware(scopes string) gin.HandlerFunc {
 	if Issuer == "" {
-		log.Fatal("Issuer not set. (Usage verifier.SetIssuer())")
+		log.Fatal("Issuer is not set. (Usage: verifier.SetIssuer(host string))")
 	}
-	client := new(RPC_Handler)
-	client.con = New()
+	client := new(Handler)
 
 	return func(c *gin.Context) {
 		token := ExtractToken(c)
 		if token == "" {
-			AbortBadRequest(c)
 			return
 		}
 
-		reply, err := client.get_authorization(token, scopes)
+		reply, err := client.Authorization(token, scopes)
 		if err != nil {
-			AbortServerError(c)
+			AbortUnauthorized(c, errors.ServerError())
 			return
 		}
-
-		switch reply.Code {
-		case 0:
-			c.Set("UUID", reply.UUID)
-			c.Next()
-		case 1:
-			AbortUnauthorized(c)
-			return
-		case 2:
-			AbortTokenExpired(c)
-			return
-		case 3:
-			AbortInsufficentPermissions(c)
-			return
-		case 4:
-			AbortWrongIssuer(c)
-			return
-		default:
-			AbortServerError(c)
-			return
-		}
+		reply.Parse(c)
 	}
 }

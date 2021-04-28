@@ -2,8 +2,8 @@ package verifier
 
 import "github.com/smallnest/rpcx/client"
 
-type RPC_Handler struct {
-	con *client.XClient
+type Handler struct {
+	Con *client.XClient
 }
 
 type Args struct {

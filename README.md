@@ -5,8 +5,14 @@ Avg resp time depends on your configuration and network ping.
 Best tests have been reaching <1ms.
 
 ```
-BONSAI_VERIFIER_SSL		bool			= false
-BONSAI_VERIFY_ADDR		string			= localhost:8972
+RPC_VERIFIER_SSL			bool		= false
+	// use ssl tunnel to reach distant server
+
+RPC_VERIFIER_ADDR			string		= verify.bonsai-sys.io:8792
+	// verifier end address
+
+RPC_VERIFIER_ERROR_DEFAULT 	bool 		= false
+	// Always return unauthorized as error message if true
 ```
 
 
@@ -15,15 +21,27 @@ r.Use(verifier.Middleware("scope; anotherscope; sscope"))
 {
 	r.GET("/protected_scope_route", handlers.protected_scope_route)
 }
+```
 
+```Go
+var Client = new(verifier.Handler)
+
+func Auth(token Token) error {
+	if token.IsBearer {
+		token.StripBearer()
+	}
+	reply, err := Client.Authorization(token.ToString(), "scope; sscope")
+	if err != nil {
+		return err
+	}
+	// Parse(Reply) / view Reply.Parse (gin.Context)
+	return nil
+}
 ```
 
 | 	Error Code	| Due 																						|
 |:-------------:|:-----------------------------------------------------------------------------------------:|
-|	400			| Invalid token length or not passed as authorization header, will try stripping Bearer. 	|
 |	401			| User is not authorized with this token or /w scope. 										|
-|	500			| Error encoutered while trying to authorize user. 											|
-
 
 
 | Authorization  	|	Code	   			|
@@ -32,4 +50,5 @@ r.Use(verifier.Middleware("scope; anotherscope; sscope"))
 |	1				| Unauthorized		 	|
 |	2				| Token expired			|
 |	3				| Insufficent Scope		|
+|	4				| Wrong issuer			|
 |	Any	(-1)		| Server Error			|
