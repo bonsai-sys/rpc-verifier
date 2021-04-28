@@ -9,7 +9,7 @@ import (
 )
 
 func (h *Handler) Authorization(token, scopes string) (*Reply, error) {
-	reply := new(Reply)
+	resp := new(Reply)
 	args := Args{
 		Token:  token,
 		Scope:  scopes,
@@ -19,11 +19,11 @@ func (h *Handler) Authorization(token, scopes string) (*Reply, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*250)
 	defer cancel()
 
-	err := (*h.Con).Call(ctx, "Verify", args, &reply)
+	err := (*h.Con).Call(ctx, "Verify", args, &resp)
 	if err != nil {
 		return nil, errors.CommunicationError()
 	}
-	return reply, nil
+	return resp, nil
 }
 
 func (r *Reply) Parse(c *gin.Context) {

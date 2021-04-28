@@ -13,6 +13,7 @@ type Args struct {
 }
 
 type Reply struct {
-	Code int8
-	UUID string
+	Code  int8
+	UUID  string
+	Scope string
 }
